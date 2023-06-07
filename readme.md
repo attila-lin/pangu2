@@ -1,8 +1,10 @@
-# pangu
+# pangu2
 
 [![Build Status][build-badge]][build-status]
 [![Crates Version][crates-badge]][crates-url]
 [![Rust Docs][docs-badge]][docs-url]
+
+The fork of [pangu-rs](https://github.com/airt/pangu-rs).
 
 Paranoid text spacing for good readability, to automatically insert whitespace between CJK (Chinese, Japanese, Korean) and half-width characters (alphabetical letters, numerical digits and symbols).
 
@@ -23,17 +25,15 @@ Add to `Cargo.toml`:
 
 ```toml
 [dependencies]
-pangu = "0.2"
+pangu2 = "0.1"
 ```
 
 Example:
 
 ```rust
-extern crate pangu;
-
 fn main() {
   assert_eq!(
-    pangu::spacing("新八的構造成分有95%是眼鏡、3%是水、2%是垃圾"),
+    pangu2::spacing("新八的構造成分有95%是眼鏡、3%是水、2%是垃圾"),
     "新八的構造成分有 95% 是眼鏡、3% 是水、2% 是垃圾"
   );
 }
@@ -50,7 +50,7 @@ at your option.
 
 [build-badge]: https://img.shields.io/travis/airt/pangu-rs.svg
 [build-status]: https://travis-ci.org/airt/pangu-rs
-[crates-badge]: https://img.shields.io/crates/v/pangu.svg
-[crates-url]: https://crates.io/crates/pangu
-[docs-badge]: https://docs.rs/pangu/badge.svg
-[docs-url]: https://docs.rs/pangu
+[crates-badge]: https://img.shields.io/crates/v/pangu2.svg
+[crates-url]: https://crates.io/crates/pangu2
+[docs-badge]: https://docs.rs/pangu2/badge.svg
+[docs-url]: https://docs.rs/pangu2
