@@ -25,7 +25,7 @@ Add to `Cargo.toml`:
 
 ```toml
 [dependencies]
-pangu2 = "0.1"
+pangu2 = "0.2"
 ```
 
 Example:

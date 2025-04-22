@@ -3,10 +3,9 @@
 //! characters (alphabetical letters, numerical digits and symbols).
 
 use std::borrow::Cow;
+use std::sync::LazyLock;
 
 use const_format::formatcp;
-use lazy_regex::lazy_regex;
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 // Chinese, Japanese, Korean
@@ -20,32 +19,32 @@ const ANS: &str =
 /// Insert whitespace between CJK and half-width characters.
 pub fn spacing(text: &str) -> Cow<str> {
     // <https://github.com/vinta/pangu/blob/master/pangu.go>
-    static CJK_QUOTE: Lazy<Regex> =
-        Lazy::new(|| Regex::new(formatcp!("([{CJK}])([\"'])", CJK = CJK)).unwrap());
-    static QUOTE_CJK: Lazy<Regex> =
-        Lazy::new(|| Regex::new(formatcp!("([\"'])([{CJK}])", CJK = CJK)).unwrap());
-    static FIX_QUOTE: Lazy<Regex> = Lazy::new(|| {
+    static CJK_QUOTE: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(formatcp!("([{CJK}])([\"'])", CJK = CJK)).unwrap());
+    static QUOTE_CJK: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(formatcp!("([\"'])([{CJK}])", CJK = CJK)).unwrap());
+    static FIX_QUOTE: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(formatcp!(
             "([\"'\\(\\[\\{{<\u{201c}])(\\s*)(.+?)(\\s*)([\"'\\)\\]\\}}>\u{201d}])"
         ))
         .unwrap()
     });
-    static FIX_SINGLE_QUOTE: Lazy<Regex> =
-        Lazy::new(|| Regex::new(formatcp!("([{CJK}])( )(')([A-Za-z])", CJK = CJK)).unwrap());
+    static FIX_SINGLE_QUOTE: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(formatcp!("([{CJK}])( )(')([A-Za-z])", CJK = CJK)).unwrap());
     // -----
-    static CJK_HASH: Lazy<Regex> =
-        Lazy::new(|| Regex::new(formatcp!("([{CJK}])(#(\\S+))", CJK = CJK)).unwrap());
-    static HASH_CJK: Lazy<Regex> =
-        Lazy::new(|| Regex::new(formatcp!("((\\S+)#)([{CJK}])", CJK = CJK)).unwrap());
+    static CJK_HASH: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(formatcp!("([{CJK}])(#(\\S+))", CJK = CJK)).unwrap());
+    static HASH_CJK: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(formatcp!("((\\S+)#)([{CJK}])", CJK = CJK)).unwrap());
     // -----
-    static CJK_OPERATOR_ANS: Lazy<Regex> = Lazy::new(|| {
+    static CJK_OPERATOR_ANS: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(formatcp!(
             "([{CJK}])([\\+\\-\\*/=&\\|<>])([A-Za-z0-9])",
             CJK = CJK
         ))
         .unwrap()
     });
-    static ANS_OPERATOR_CJK: Lazy<Regex> = Lazy::new(|| {
+    static ANS_OPERATOR_CJK: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(formatcp!(
             "([A-Za-z0-9])([\\+\\-\\*/=&\\|<>])([{CJK}])",
             CJK = CJK
@@ -53,23 +52,24 @@ pub fn spacing(text: &str) -> Cow<str> {
         .unwrap()
     });
     // -----
-    static CJK_BRACKET_CJK: Lazy<Regex> = Lazy::new(|| {
+    static CJK_BRACKET_CJK: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(formatcp!(
             "([{CJK}])([\\(\\[\\{{<\u{201c}]+(.*?)[\\)\\]\\}}>\u{201d}]+)([{CJK}])",
             CJK = CJK
         ))
         .unwrap()
     });
-    static CJK_BRACKET: Lazy<Regex> = Lazy::new(|| {
+    static CJK_BRACKET: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(formatcp!("([{CJK}])([\\(\\[\\{{<\u{201c}>])", CJK = CJK)).unwrap()
     });
-    static BRACKET_CJK: Lazy<Regex> = Lazy::new(|| {
+    static BRACKET_CJK: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(formatcp!("([\\)\\]\\}}>\u{201d}<])([{CJK}])", CJK = CJK)).unwrap()
     });
-    static FIX_BRACKET: Lazy<Regex> =
-        lazy_regex!("([\\(\\[\\{{<\u{201c}]+)(\\s*)(.+?)(\\s*)([\\)\\]\\}}>\u{201d}]+)");
+    static FIX_BRACKET: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new("([\\(\\[\\{{<\u{201c}]+)(\\s*)(.+?)(\\s*)([\\)\\]\\}}>\u{201d}]+)").unwrap()
+    });
     // -----
-    static FIX_SYMBOL: Lazy<Regex> = Lazy::new(|| {
+    static FIX_SYMBOL: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(formatcp!(
             "([{CJK}])([~!;:,\\.\\?\u{2026}])([A-Za-z0-9])",
             CJK = CJK
@@ -77,9 +77,10 @@ pub fn spacing(text: &str) -> Cow<str> {
         .unwrap()
     });
     // -----
-    static CJK_ANS: Lazy<Regex> =
-        Lazy::new(|| Regex::new(formatcp!("([{CJK}])([{ANS}@])", CJK = CJK, ANS = ANS)).unwrap());
-    static ANS_CJK: Lazy<Regex> = Lazy::new(|| {
+    static CJK_ANS: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(formatcp!("([{CJK}])([{ANS}@])", CJK = CJK, ANS = ANS)).unwrap()
+    });
+    static ANS_CJK: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(formatcp!(
             "([{ANS}~!;:,\\.\\?\u{2026}])([{CJK}])",
             CJK = CJK,
@@ -115,7 +116,7 @@ pub fn spacing(text: &str) -> Cow<str> {
     let text_14 = CJK_ANS.replace_all(&text_13, "$1 $2");
     let text_15 = ANS_CJK.replace_all(&text_14, "$1 $2");
 
-    let eq = |x: &str, y: &str| x.as_ptr() == y.as_ptr() && x.len() == y.len();
+    let eq = |x: &str, y: &str| std::ptr::eq(x.as_ptr(), y.as_ptr()) && x.len() == y.len();
 
     match text_15 {
         Cow::Borrowed(t) if eq(t, text) => Cow::Borrowed(text),
